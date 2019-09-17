@@ -1,0 +1,8 @@
+{
+  "name": "IniParser",
+  "version": "1.0.0",
+  "description": "ini风格配置文件解析",
+  "main": "index.js",
+  "author": "WT",
+  "license": "MIT"
+}
