@@ -4,5 +4,6 @@
   "description": "ini风格配置文件解析",
   "main": "index.js",
   "author": "Tensoar",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": ["ini", "iniparser", "ini config"]
 }

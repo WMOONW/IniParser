@@ -1,4 +1,4 @@
-# IniParser
+# IniParser.js
 ini style file parser for node
 
 ### install
