@@ -44,7 +44,7 @@ config.set("section3", "key1", "value1")
 var opt = {
     path: "new_config.ini",
     encoding: "UTF8",  // default is "UTF8"
-    toDelimiter: "="  // default is "="
+    delimiter: "="  // default is "="
 }
 config.save(opt)
 
