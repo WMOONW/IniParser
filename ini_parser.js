@@ -9,70 +9,71 @@ function IniParser(path, encoding) {
     this.encoding = encoding || "UTF8"
     this.configs = {}
     // var contents = []
-    if (!fs.existsSync(path)) {
-        throw new Error(`file dons't exit: ${this.path}`)
-    }
-    try {
-        this.input = fs.readFileSync(path, encoding)
-    }catch (ex) {
-        throw new Error(`open file failed: \n ex.toString()`)
-    }
-    var configLines = this.input.toString().split(/\r?\n/g)
-    
-    var curSection = 'global'
-    this.configs[curSection] = {}
-    // contents.push(rowContent('section', curSection, '', curSection))
-    var globalCount = 0
-    for (var i = 0; i < configLines.length; i ++) {
-        var line = configLines[i].trim()
-        if (line.length <= 2 || comments.includes(line.charAt(0))) {
-            // contents.push(rowContent('comment', "", "", line))
-            continue
-        } 
-        comments.forEach(function(com) { line = line.split(com)[0] })
-        line = line.trim()
-        if (line.length <= 2) {
-            // contents.push(rowContent('comment', "", "", line))
-            continue
-        } 
-        var matchArr = line.match(sectionNameRegex)
-        if (line.startsWith('[') && matchArr != null) {
-            curSection = matchArr[1]
-            if (!(curSection in this.configs)) {
-                this.configs[curSection] = {}
-                // contents.push(rowContent('section', curSection, '', curSection))
-            }
-            continue
+    if (this.path) {
+        if (!fs.existsSync(path)) {
+            throw new Error(`file dons't exit: ${this.path}`)
         }
-
-        for (var j = 0; j < delimiter.length; j ++) {
-            var curDelimiter = delimiter[j]
-            if (!line.includes(curDelimiter)) {
+        try {
+            this.input = fs.readFileSync(path, encoding)
+        }catch (ex) {
+            throw new Error(`open file failed: \n ex.toString()`)
+        }
+        var configLines = this.input.toString().split(/\r?\n/g)
+        
+        var curSection = 'global'
+        this.configs[curSection] = {}
+        // contents.push(rowContent('section', curSection, '', curSection))
+        var globalCount = 0
+        for (var i = 0; i < configLines.length; i ++) {
+            var line = configLines[i].trim()
+            if (line.length <= 2 || comments.includes(line.charAt(0))) {
+                // contents.push(rowContent('comment', "", "", line))
+                continue
+            } 
+            comments.forEach(function(com) { line = line.split(com)[0] })
+            line = line.trim()
+            if (line.length <= 2) {
+                // contents.push(rowContent('comment', "", "", line))
+                continue
+            } 
+            var matchArr = line.match(sectionNameRegex)
+            if (line.startsWith('[') && matchArr != null) {
+                curSection = matchArr[1]
+                if (!(curSection in this.configs)) {
+                    this.configs[curSection] = {}
+                    // contents.push(rowContent('section', curSection, '', curSection))
+                }
                 continue
             }
-            var index = line.indexOf(curDelimiter)
-            if (index == line.length - 1) {
-                throw new Error(`there is no value with key ${line.slice(0, index)} in ${this.path} line ${i}`)
+
+            for (var j = 0; j < delimiter.length; j ++) {
+                var curDelimiter = delimiter[j]
+                if (!line.includes(curDelimiter)) {
+                    continue
+                }
+                var index = line.indexOf(curDelimiter)
+                if (index == line.length - 1) {
+                    throw new Error(`there is no value with key ${line.slice(0, index)} in ${this.path} line ${i}`)
+                }
+                if (index == 0) {
+                    throw new Error(`there is no key in ${this.path} line ${i}`)
+                }
+                var curKey = line.slice(0, index).trim()
+                var curValue = line.slice(index + 1, line.length).trim()
+                this.configs[curSection][curKey] = curValue
+                // contents.push(rowContent('record', curSection, curKey, curValue))
+                if (curSection == 'global') {
+                    globalCount ++
+                }
+                break
             }
-            if (index == 0) {
-                throw new Error(`there is no key in ${this.path} line ${i}`)
-            }
-            var curKey = line.slice(0, index).trim()
-            var curValue = line.slice(index + 1, line.length).trim()
-            this.configs[curSection][curKey] = curValue
-            // contents.push(rowContent('record', curSection, curKey, curValue))
-            if (curSection == 'global') {
-                globalCount ++
-            }
-            break
+        }
+        
+        if (globalCount == 0) {
+            delete this.configs.global
+            // contents = contents.splice(0, 1)
         }
     }
-    
-    if (globalCount == 0) {
-        delete this.configs.global
-        // contents = contents.splice(0, 1)
-    }
-
     this.sections = function () {
         return Object.keys(this.configs)
     }
