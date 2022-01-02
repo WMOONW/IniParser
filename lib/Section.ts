@@ -1,35 +1,49 @@
 import { ItemValue } from "./types";
+import { isTrue } from "./util";
 
 export default class Section implements Iterable<[string, string]> {
-    private readonly map = new Map<string, string>();
+    private readonly items = new Map<string, string>();
+    private sectionName: string;
 
-    add(key: string, value: ItemValue, splitter = ',') {
+    constructor(sectionName: string) {
+        this.sectionName = sectionName;
+    }
+
+    getName() {
+        return this.sectionName;
+    }
+
+    setName(sectionName: string) {
+        this.sectionName = sectionName;
+    }
+
+    set(key: string, value: ItemValue, splitter = ',') {
         // TODO process splitter
         if (value instanceof Array) {
-            this.map.set(key, value.join(splitter));
+            this.items.set(key, value.join(splitter));
         } else {
-            this.map.set(key, value.toString());
+            this.items.set(key, value.toString());
         }
     }
 
     remove(key: string) {
-        this.map.delete(key);
+        this.items.delete(key);
     }
 
     keys() {
-        return this.map.keys();
+        return this.items.keys();
     }
 
     values() {
-        return this.map.values();
+        return this.items.values();
     }
 
     getMap() {
-        return this.map;
+        return this.items;
     }
 
     get(key: string) {
-        return this.map.get(key);
+        return this.items.get(key);
     }
 
     getInt(key: string, radix?: number) {
@@ -45,14 +59,18 @@ export default class Section implements Iterable<[string, string]> {
     }
 
     getBoolean(key: string) {
-        return this.isTrue(this.get(key));
-    }
-
-    private isTrue(value: string) {
-        return value && value.toString() !== "false" && value !== "0";
+        return isTrue(this.get(key));
     }
 
     [Symbol.iterator]() {
-        return this.map.entries();
+        return this.items.entries();
+    }
+
+    toString() {
+        let str = '';
+        for (const [key, value] of this.getMap()) {
+            str += `, '${key}' => '${value}'`;
+        }
+        return `${this.sectionName} { ${str.substring(1).trimStart()} }`;
     }
 }
